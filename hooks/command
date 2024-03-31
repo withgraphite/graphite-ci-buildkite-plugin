@@ -1,0 +1,57 @@
+#!/bin/bash
+
+set -euo pipefail
+
+DIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+VERSION="v0.0.01"
+
+GRAPHITE_TOKEN="${BUILDKITE_PLUGIN_GRAPHITE_CI_GRAPHITE_TOKEN:-}"
+ENDPOINT="${BUILDKITE_PLUGIN_GRAPHITE_CI_ENDPOINT:-https://api.graphite.dev}"
+TIMEOUT="${BUILDKITE_PLUGIN_GRAPHITE_CI_TIMEOUT:-30}"
+
+BODY_FILE="$(mktemp)"
+
+RESPONSE_CODE=$(curl -s -o "$BODY_FILE" -w "%{response_code}" \
+"$ENDPOINT/api/v1/ci" \
+-X POST \
+-H "Accept: application/json" \
+-H "Content-Type: application/json" \
+--data @<(cat <<EOF
+{
+  "token": "$GRAPHITE_TOKEN",
+  "caller": {
+    "name": "graphite-ci-buildkite-plugin",
+    "version": "$VERSION"
+  },
+  "context": {
+    "kind": "BUILDKITE",
+    "repository": "${BUILDKITE_REPO:-}",
+    "pr": "${BUILDKITE_PULL_REQUEST:-}",
+    "commit": "${BUILDKITE_COMMIT:-}",
+    "ref": "${BUILDKITE_BRANCH:-}",
+    "pipeline": {
+      "slug": "${BUILDKITE_PIPELINE_SLUG:-}",
+      "name": "${BUILDKITE_PIPELINE_NAME:-}",
+      "id": "${BUILDKITE_PIPELINE_ID:-}"
+    }
+}
+EOF
+)
+)
+
+if [ $RESPONSE_CODE = "401" ]; then
+  echo "Invalid authentication. Please update your Graphite CI token.";
+  exit 1
+fi
+
+if [ $RESPONSE_CODE != "200" ]; then 
+  echo "Response returned a non-200 status. Skipping Graphite checks.";
+  exit 0
+fi
+
+SHOULD_SKIP=$(jq .skip $BODY_FILE)
+
+if [ $RESPONSE_CODE = "true" ]; then 
+  buildkite-agent pipeline upload "$DIR/../pipelines/empty.yml" --replace
+fi

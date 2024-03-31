@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=https://json.schemastore.org/yamllint.json
+
+name: Graphite CI
+description: Optimize CI on stacked branches.
+author: https://graphite.dev
+requirements:
+  - bash
+configuration:
+  properties:
+    graphite_token:
+      type: string
+    timeout:
+      type: string
+    endpoint:
+      type: string
+  required:
+    - graphite_token
+  additionalProperties: false

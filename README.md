@@ -1,6 +1,6 @@
 # Graphite CI
 
-The Graphite CI action allows you to define _when_ to run CI.
+The Graphite CI buildkite plugin allows you to define _when_ to run CI.
 
 Common optimizations include:
 
@@ -11,18 +11,16 @@ Common optimizations include:
 
 1. First, get your CI token from https://app.graphite.dev/ci
 
-1. Then, add the CI step to your workflow file:
+1. Then, add the CI step to your pipeline file:
 
 ```yml
 steps:
-  - name: Checkout
-    uses: withgraphite/graphite-ci-action@main
-    with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
-      graphite_token: 'XXX'
+  - plugins:
+      - withgraphite/graphite-ci#main:
+          graphite_token: 'XXX'
 ```
 
 To instead use a
-[specific version](https://github.com/withgraphite/graphite-ci-action/tags) of
+[specific version](https://github.com/withgraphite/graphite-ci-buildkite-plugin/tags) of
 this action, replace `@main` with `@v1.0` (or whatever the current latest
 version is).
