@@ -37,7 +37,7 @@ RESPONSE_CODE=$(curl -s -o "$BODY_FILE" -w "%{response_code}" \
         "id": "${BUILDKITE_PIPELINE_ID:-}"
       }
   }
-  EOF
+EOF
   )
 )
 
