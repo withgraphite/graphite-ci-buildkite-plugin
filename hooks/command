@@ -54,6 +54,9 @@ fi
 
 SHOULD_SKIP=$(jq .skip $BODY_FILE)
 
-if [ $SHOULD_SKIP = "true" ]; then 
+if [ $SHOULD_SKIP = "true" ]; then
+  buildkite-agent annotate ":graphite: This PR is in the middle of a [stack](https://stacking.dev)
+                            and will not run CI until it configured to do so,
+                            or is manually triggered." --style "info" --context "graphite" --job $BUILDKITE_JOB_ID
   buildkite-agent pipeline upload "$DIR/../pipelines/empty.yml" --replace
 fi
