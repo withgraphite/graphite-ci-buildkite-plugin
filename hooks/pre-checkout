@@ -53,10 +53,12 @@ if [ $RESPONSE_CODE != "200" ]; then
 fi
 
 SHOULD_SKIP=$(jq .skip $BODY_FILE)
+REASON=$(jq .reason $BODY_FILE)
 
 if [ $SHOULD_SKIP = "true" ]; then
-  buildkite-agent annotate ":graphite: This PR is in the middle of a [stack](https://stacking.dev)
-                            and will not run CI until it configured to do so,
-                            or is manually triggered." --style "info" --context "graphite" --job $BUILDKITE_JOB_ID
+  if [ -z "$REASON" ]; then
+    buildkite-agent annotate ":graphite: $REASON Note that you can always manually trigger CI." 
+                              --style "info" --context "graphite" --job $BUILDKITE_JOB_ID
+  fi
   buildkite-agent pipeline upload "$DIR/../pipelines/empty.yml" --replace
 fi
