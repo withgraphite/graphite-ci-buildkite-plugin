@@ -47,6 +47,11 @@ if [ $RESPONSE_CODE = "401" ]; then
   exit 1
 fi
 
+if [ $RESPONSE_CODE = "402" ]; then
+  >&2 echo "Your Graphite plan does not support the CI Optimizer. Please upgrade your plan to use this feature."
+  exit 1
+fi
+
 if [ $RESPONSE_CODE != "200" ]; then 
   echo "Response returned a non-200 status. Skipping Graphite checks."
   exit 0
